@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <jmxConfigurator/>
+
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/app.log}"/>
+
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml"/>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+
+        <file>${LOG_FILE}</file>
+
+        <!-- Log rotation by day -->
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_FILE}.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>60</maxHistory>
+        </rollingPolicy>
+
+        <encoder>
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <if condition='property("spring.profiles.active").contains("DEV")
+		|| property("spring.profiles.active").contains("PRO")'>
+
+        <then>
+            <root>
+                <appender-ref ref="FILE"/>
+            </root>
+        </then>
+
+        <else>
+            <root>
+                <appender-ref ref="CONSOLE"/>
+            </root>
+        </else>
+
+    </if>
+
+</configuration>

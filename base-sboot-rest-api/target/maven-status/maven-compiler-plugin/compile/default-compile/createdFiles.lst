@@ -1,0 +1,5 @@
+es\sm2baleares\base\api\ApiConstants.class
+es\sm2baleares\base\api\controller\exception\CustomExceptionController.class
+es\sm2baleares\base\api\controller\TaskController.class
+es\sm2baleares\base\BaseSbootNg2ApiApp.class
+es\sm2baleares\base\api\controller\UserController.class

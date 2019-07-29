@@ -1,0 +1,12 @@
+es\sm2baleares\base\model\domain\audit\UserRevisionEntity.class
+es\sm2baleares\base\model\domain\audit\UserRevisionListener.class
+es\sm2baleares\base\model\domain\common\AuditedEntity.class
+es\sm2baleares\base\model\domain\common\QAuditedEntity.class
+es\sm2baleares\base\model\domain\common\QBaseEntity.class
+es\sm2baleares\base\model\domain\QUser.class
+es\sm2baleares\base\model\domain\QTask.class
+es\sm2baleares\base\model\domain\User.class
+es\sm2baleares\base\model\api\task\TaskDto.class
+es\sm2baleares\base\model\domain\common\BaseEntity.class
+es\sm2baleares\base\model\domain\Task.class
+es\sm2baleares\base\model\api\user\UserDto.class

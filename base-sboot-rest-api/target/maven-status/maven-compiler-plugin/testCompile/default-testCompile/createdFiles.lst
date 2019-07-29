@@ -1,0 +1,5 @@
+es\sm2baleares\base\api\controller\task\TaskControllerTest.class
+es\sm2baleares\base\api\controller\user\UserControllerTest.class
+es\sm2baleares\base\IntegrationTest.class
+es\sm2baleares\base\service\task\TaskServiceTest.class
+es\sm2baleares\base\service\user\UserServiceTest.class
