@@ -1,0 +1,115 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <!-- UserRevisionEntity -->
+    <changeSet author="miguel.palao" id="createTable.UserRevisionEntity" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <createTable tableName="USER_REVISION_ENTITY">
+            <column autoIncrement="true" name="id" type="INT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="timestamp" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+
+
+    <!-- User -->
+    <changeSet author="miguel.palao" id="createTable.User" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <createTable tableName="USER">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="USERNAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="PASSWORD" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="ACTIVE" type="tinyint(1)"/>
+        </createTable>
+    </changeSet>
+
+    <changeSet author="miguel.palao" id="addUniqueConstraints.User.Username" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <addUniqueConstraint columnNames="USERNAME" constraintName="UK_USER_USERNAME" tableName="USER"/>
+    </changeSet>
+
+    <!-- User audit -->
+    <changeSet author="miguel.palao" id="createTable.UserAud" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <createTable tableName="USER_AUD">
+            <column name="ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT(3)"/>
+            <column name="USERNAME" type="VARCHAR(255)"/>
+            <column name="PASSWORD" type="VARCHAR(255)"/>
+            <column name="ACTIVE" type="tinyint(1)"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATION_DATE" type="datetime(6)"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFICATION_DATE" type="datetime(6)"/>
+        </createTable>
+    </changeSet>
+
+
+    <!-- Task -->
+    <changeSet author="miguel.palao" id="createTable.Task" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <createTable tableName="TASK">
+            <column autoIncrement="true" name="ID" type="BIGINT">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="NAME" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="DESCRIPTION" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="USER" type="bigint(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="START_TIME" type="datetime"/>
+            <column name="END_TIME" type="datetime"/>
+            <column name="ACTIVE" type="tinyint(1)"/>
+        </createTable>
+    </changeSet>
+
+
+    <changeSet author="miguel.palao" id="createForeign.Task.userid"
+               objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <addForeignKeyConstraint baseColumnNames="USER" baseTableName="TASK"
+                                 constraintName="FK_USER" deferrable="false"
+                                 initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION"
+                                 referencedColumnNames="ID" referencedTableName="USER"/>
+    </changeSet>
+
+    <!-- Task audit -->
+    <changeSet author="miguel.palao" id="createTable.TaskAud" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+        <createTable tableName="TASK_AUD">
+            <column name="ID" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REV" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="REVTYPE" type="TINYINT(3)"/>
+            <column name="NAME" type="VARCHAR(255)"/>
+            <column name="USER" type="bigint(20)"/>
+            <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column name="ACTIVE" type="tinyint(1)"/>
+            <column name="START_TIME" type="datetime"/>
+            <column name="END_TIME" type="datetime"/>
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATION_DATE" type="datetime(6)"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFICATION_DATE" type="datetime(6)"/>
+        </createTable>
+    </changeSet>
+
+
+</databaseChangeLog>

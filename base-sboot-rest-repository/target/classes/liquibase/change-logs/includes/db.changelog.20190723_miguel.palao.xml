@@ -1,0 +1,26 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="miguel.palao" id="20190723_miguel.palao_01" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+
+        <addColumn tableName="USER">
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATION_DATE" type="DATETIME(6)"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFICATION_DATE" type="DATETIME(6)"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet author="miguel.palao" id="20190723_miguel.palao_02" objectQuotingStrategy="QUOTE_ALL_OBJECTS">
+
+        <addColumn tableName="TASK">
+            <column name="CREATED_BY" type="VARCHAR(255)"/>
+            <column name="CREATION_DATE" type="DATETIME(6)"/>
+            <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
+            <column name="LAST_MODIFICATION_DATE" type="DATETIME(6)"/>
+        </addColumn>
+    </changeSet>
+
+
+</databaseChangeLog>
