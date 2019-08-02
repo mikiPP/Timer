@@ -6,6 +6,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.validation.constraints.NotNull;
 
@@ -20,10 +21,12 @@ public class UserDto extends ApiModelItem {
 
     @ApiModelProperty(value = "username", required = true, example = "solid.snake", position = 20)
     @NotNull
+    @NotEmpty
     private String username;
 
     @ApiModelProperty(value = "password", required = true, example = "abcdef", position = 30)
     @NotNull
+    @NotEmpty
     private String password;
 
     @ApiModelProperty(example = "true", value = "User is active", position = 40)

@@ -14,13 +14,12 @@ import java.util.Optional;
 import static junit.framework.TestCase.assertTrue;
 
 
-@RunWith( SpringRunner.class )
+@RunWith(SpringRunner.class)
 public class TaskServiceTest extends IntegrationTest {
 
 
     @Autowired
     private TaskService taskService;
-
 
 
     @Test
@@ -182,7 +181,6 @@ public class TaskServiceTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertTrue(size - 1 == taskService.findAll().size());
-
 
 
     }

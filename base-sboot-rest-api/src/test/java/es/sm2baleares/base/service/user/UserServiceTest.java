@@ -1,6 +1,7 @@
 package es.sm2baleares.base.service.user;
 
 import es.sm2baleares.base.IntegrationTest;
+import es.sm2baleares.base.model.api.user.AuthUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,10 +13,11 @@ import java.util.List;
 import java.util.Optional;
 
 import static junit.framework.TestCase.assertEquals;
+import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
 
-@RunWith( SpringRunner.class )
+@RunWith(SpringRunner.class)
 public class UserServiceTest extends IntegrationTest {
 
 
@@ -24,8 +26,6 @@ public class UserServiceTest extends IntegrationTest {
 
     @Autowired
     private BCryptPasswordEncoder bCryptPasswordEncoder;
-
-
 
 
     @Test
@@ -54,14 +54,14 @@ public class UserServiceTest extends IntegrationTest {
 
         assertTrue(userDto.getPassword() != userInserted.getPassword());
 
-        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(),userInserted.getPassword()));
+        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userInserted.getPassword()));
 
-        assertTrue(users+1 == userService.findAll().size());
+        assertTrue(users + 1 == userService.findAll().size());
     }
 
 
     @Test
-    public void findOneShouldReturnOneOptionalUserDto() {
+    public void findOneByIdShouldReturnOneOptionalUserDto() {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -81,18 +81,47 @@ public class UserServiceTest extends IntegrationTest {
 
         assertTrue(userFinded instanceof Optional);
 
-        assertTrue(userFinded.get() instanceof  UserDto);
+        assertTrue(userFinded.get() instanceof UserDto);
 
-        assertEquals(userDto.getId(),userFinded.get().getId());
-        assertEquals(userDto.getUsername(),userFinded.get().getUsername());
-        assertEquals(userDto.getActive(),userFinded.get().getActive());
+        assertEquals(userDto.getId(), userFinded.get().getId());
+        assertEquals(userDto.getUsername(), userFinded.get().getUsername());
+        assertEquals(userDto.getActive(), userFinded.get().getActive());
 
-        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(),userFinded.get().getPassword()));
-
-
+        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userFinded.get().getPassword()));
 
     }
 
+
+    @Test
+    public void findOneByUsernameShouldReturnOneOptionalUserDto() {
+
+        /*-------------------------- Given  --------------------------*/
+
+        UserDto userDto = new UserDto();
+        userDto.setId(20l);
+        userDto.setUsername("username20");
+        userDto.setPassword("password20");
+        userDto.setActive(true);
+
+        userService.insert(userDto);
+
+        /*-------------------------- When  --------------------------*/
+
+        Optional<UserDto> userFinded = userService.findOne("username20");
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertTrue(userFinded instanceof Optional);
+
+        assertTrue(userFinded.get() instanceof UserDto);
+
+        assertEquals(userDto.getId(), userFinded.get().getId());
+        assertEquals(userDto.getUsername(), userFinded.get().getUsername());
+        assertEquals(userDto.getActive(), userFinded.get().getActive());
+
+        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userFinded.get().getPassword()));
+
+    }
 
     @Test
     public void findAllShouldReturnOneList() {
@@ -139,43 +168,43 @@ public class UserServiceTest extends IntegrationTest {
 
         userService.insert(userDto);
 
-        UserDto userDtoToUpdate = new UserDto();
-        userDtoToUpdate.setId(7l);
-        userDtoToUpdate.setUsername("username7 updated");
-        userDtoToUpdate.setPassword("password7 updated");
-        userDtoToUpdate.setActive(false);
+        AuthUserDto authUserDtoToUpdate = new AuthUserDto();
+        authUserDtoToUpdate.setOldUsername("username7");
+        authUserDtoToUpdate.setOldPassword("password7");
+        authUserDtoToUpdate.setNewUsername("username7 updated");
+        authUserDtoToUpdate.setNewPassword("password7 updated");
+        authUserDtoToUpdate.setActive(false);
 
         /*-------------------------- When  --------------------------*/
 
-        userService.update(userDtoToUpdate);
+        userService.update(authUserDtoToUpdate);
 
-        UserDto userUpdated = userService.findOne(7l).get();
+        UserDto userUpdated = userService.findOne("username7 updated").get();
 
-        System.out.println(userDtoToUpdate);
 
         /*-------------------------- Then  --------------------------*/
-
+        System.out.println(userUpdated.getPassword());
 
         assertTrue(userUpdated instanceof UserDto);
 
+
+
         assertTrue(userDto.getUsername() != userUpdated.getUsername()
-                && userUpdated.getUsername().equals(userDtoToUpdate.getUsername()));
+                && userUpdated.getUsername().equals(authUserDtoToUpdate.getNewUsername()));
 
-        assertTrue(! bCryptPasswordEncoder.matches(userDto.getPassword(),userUpdated.getPassword())
-                && bCryptPasswordEncoder.matches(userDtoToUpdate.getPassword(),userUpdated.getPassword()));
+        assertTrue(!bCryptPasswordEncoder.matches(userDto.getPassword(), userUpdated.getPassword())
+                && bCryptPasswordEncoder.matches(authUserDtoToUpdate.getNewPassword(), userUpdated.getPassword()));
 
-        System.out.println(userDto.getActive() != userUpdated.getActive());
-        System.out.println(userDtoToUpdate.getActive() == userUpdated.getActive());
 
         assertTrue(userDto.getActive() != userUpdated.getActive()
-                && userDtoToUpdate.getActive() == userUpdated.getActive());
+                && authUserDtoToUpdate.getActive() == userUpdated.getActive());
 
 
     }
 
 
     @Test
-    public void DeleteShouldReturnVoid() {
+    public void DeleteUserByIdShouldReturnVoid() {
 
         /*-------------------------- Given  --------------------------*/
         UserDto userDto = new UserDto();
@@ -190,6 +219,30 @@ public class UserServiceTest extends IntegrationTest {
 
         int usersCount = userService.findAll().size();
         userService.delete(8l);
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertTrue(usersCount - 1 == userService.findAll().size());
+
+
+    }
+
+    @Test
+    public void DeleteUserByUsernameShouldReturnVoid() {
+
+        /*-------------------------- Given  --------------------------*/
+        UserDto userDto = new UserDto();
+        userDto.setId(16l);
+        userDto.setUsername("username16");
+        userDto.setPassword("password16");
+        userDto.setActive(true);
+
+        userService.insert(userDto);
+
+        /*-------------------------- When  --------------------------*/
+
+        int usersCount = userService.findAll().size();
+        userService.deleteUserByUsername(userDto.getUsername(),userDto.getPassword());
 
         /*-------------------------- Then  --------------------------*/
 
@@ -230,6 +283,31 @@ public class UserServiceTest extends IntegrationTest {
 
         assertTrue(userService.findAll().size() == 0);
         assertTrue(usersCount > 0);
+
+    }
+
+    @Test
+    public void findedByUsernameShouldReturnBoolean() {
+
+        /*-------------------------- Given  --------------------------*/
+
+        UserDto userDto = new UserDto();
+        userDto.setId(40l);
+        userDto.setUsername("username40");
+        userDto.setPassword("password40");
+
+        userService.insert(userDto);
+
+
+        /*-------------------------- When  --------------------------*/
+
+        Boolean userFindedTrue = userService.usernameIsValid("username99");
+        Boolean userFindedFalse = userService.usernameIsValid("username40");
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertTrue(userFindedTrue);
+        assertFalse(userFindedFalse);
 
     }
 

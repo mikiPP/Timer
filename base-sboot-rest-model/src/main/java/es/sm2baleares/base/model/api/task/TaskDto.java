@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @ApiModel
 @Getter
 @Setter
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 public class TaskDto extends ApiModelItem {
 

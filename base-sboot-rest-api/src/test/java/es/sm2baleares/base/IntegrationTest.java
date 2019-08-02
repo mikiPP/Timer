@@ -17,7 +17,7 @@ import java.net.MalformedURLException;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-public  abstract class IntegrationTest {
+public abstract class IntegrationTest {
 
     protected MockMvc mvc;
 

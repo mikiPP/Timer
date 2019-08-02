@@ -1,7 +1,10 @@
 package es.sm2baleares.base.api.controller.user;
 
 import es.sm2baleares.base.IntegrationTest;
+import es.sm2baleares.base.model.api.user.AuthUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
+import es.sm2baleares.base.model.domain.User;
+import es.sm2baleares.base.service.exception.NotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +54,7 @@ public class UserControllerTest extends IntegrationTest {
 
 
     @Test
-    public void getAnUserShouldReturnOneUser() throws Exception {
+    public void getAnUserByIdShouldReturnOneUser() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -60,7 +63,7 @@ public class UserControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/users/"+(Id-1))
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/users/id/" + (Id - 1))
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
         String content = mvcResult.getResponse().getContentAsString();
@@ -70,8 +73,89 @@ public class UserControllerTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(userDto instanceof  UserDto);
-        assertTrue(userDto.getId().equals(Id-1));
+        assertTrue(userDto instanceof UserDto);
+        assertTrue(userDto.getId().equals(Id - 1));
+
+
+    }
+
+
+    @Test
+    public void findUserByUsernameShouldReturnBoolean() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        UserDto userDto = createNewUser();
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/users/username/" + userDto.getUsername() + "fail")
+                .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        Boolean userFindedTrue = super.mapFromJson(content, Boolean.class);
+
+
+        MvcResult mvcResultFail =
+                mvc.perform(MockMvcRequestBuilders.get("/api/users/username/" + userDto.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String contentFail = mvcResultFail.getResponse().getContentAsString();
+
+        Boolean userFindedFalse = super.mapFromJson(contentFail, Boolean.class);
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertTrue(userFindedTrue);
+        assertFalse(userFindedFalse);
+
+
+    }
+
+    @Test(expected = NestedServletException.class)
+    public void getUserByUsernameShouldReturnUser() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        UserDto userDto = createNewUser();
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResultNull =
+                mvc.perform(MockMvcRequestBuilders.get("/api/users/get/" + "fail")
+                        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String content = mvcResultNull.getResponse().getContentAsString();
+
+        UserDto  userNotFinded = super.mapFromJson(content, UserDto.class);
+
+
+        MvcResult mvcResult =
+                mvc.perform(MockMvcRequestBuilders.get("/api/users/get/" + userDto.getUsername())
+                        .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String contentFail = mvcResult.getResponse().getContentAsString();
+
+        UserDto userFindedFalse = super.mapFromJson(contentFail, UserDto.class);
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertEquals(HttpStatus.OK.value(), mvcResultNull.getResponse().getStatus());
+        assertTrue(userNotFinded == null);
+        assertFalse(userFindedFalse == null);
 
 
     }
@@ -97,7 +181,7 @@ public class UserControllerTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(userDtos instanceof  List);
+        assertTrue(userDtos instanceof List);
         assertTrue(userDtos.size() > 0);
 
     }
@@ -106,16 +190,20 @@ public class UserControllerTest extends IntegrationTest {
     public void UpdateAnUserShouldReturnUserUpdated() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
+        UserDto userDto = createNewUser();
+
+
 
         mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
-                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(createNewUser()))).andReturn();
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
 
 
-        UserDto userUpdated = new UserDto();
+        AuthUserDto userUpdated = new AuthUserDto();
 
-        userUpdated.setId(Id-1);
-        userUpdated.setPassword("antonio");
-        userUpdated.setUsername("user updated");
+        userUpdated.setOldUsername(userDto.getUsername());
+        userUpdated.setOldPassword(userDto.getPassword());
+        userUpdated.setNewPassword("antonio");
+        userUpdated.setNewUsername("user updated");
         userUpdated.setActive(false);
 
 
@@ -126,21 +214,24 @@ public class UserControllerTest extends IntegrationTest {
 
         String content = mvcResult.getResponse().getContentAsString();
 
-        UserDto userDto = super.mapFromJson(content, UserDto.class);
+        UserDto responseUserDto = super.mapFromJson(content, UserDto.class);
 
 
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(userDto instanceof  UserDto);
-        assertFalse(userDto.equals(userUpdated));
+        assertTrue(responseUserDto instanceof UserDto);
+        assertTrue(responseUserDto.getUsername().equals(userUpdated.getNewUsername()));
 
     }
 
     @Test
-    public void DeleteAnUserShouldReturnOk() throws Exception {
+    public void DeleteAnUserByIdShouldReturnOk() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
+
+
+
 
         mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
                 .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(createNewUser()))).andReturn();
@@ -148,8 +239,37 @@ public class UserControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/"+(Id-1))
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/id/" + (Id - 1))
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+
+    }
+
+
+    @Test
+    public void DeleteAnUserByUsernameShouldReturnOk() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        UserDto userDto = createNewUser();
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
+
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/"+userDto.getUsername()
+        +"/" + userDto.getPassword())
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
+
 
 
 
@@ -199,7 +319,7 @@ public class UserControllerTest extends IntegrationTest {
         /*-------------------------- Given  --------------------------*/
 
         UserDto userDtoNull = new UserDto();
-        
+
         UserDto userDtoWithoutPassword = new UserDto();
         userDtoWithoutPassword.setUsername("username Test");
 
@@ -234,7 +354,7 @@ public class UserControllerTest extends IntegrationTest {
     }
 
 
-    @Test(expected= NestedServletException.class)
+    @Test(expected = NestedServletException.class)
     public void IfUserDontExistsShouldReturnNotFoundException() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
@@ -247,10 +367,10 @@ public class UserControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcGetRequest = mvc.perform(MockMvcRequestBuilders.get("/api/users/"+100)
+        MvcResult mvcGetRequest = mvc.perform(MockMvcRequestBuilders.get("/api/users/id/" + 100)
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
-        MvcResult mvcDeleteRequest = mvc.perform(MockMvcRequestBuilders.delete("/api/users/"+100)
+        MvcResult mvcDeleteRequest = mvc.perform(MockMvcRequestBuilders.delete("/api/users/id/" + 100)
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 
@@ -270,7 +390,7 @@ public class UserControllerTest extends IntegrationTest {
         UserDto userDto = new UserDto();
 
         userDto.setId(Id);
-        userDto.setUsername("TestUsername"+ Id);
+        userDto.setUsername("TestUsername" + Id);
         userDto.setPassword("12345678");
         userDto.setActive(true);
 

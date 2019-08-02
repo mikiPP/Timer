@@ -3,8 +3,6 @@ package es.sm2baleares.base.api.controller.task;
 import es.sm2baleares.base.IntegrationTest;
 import es.sm2baleares.base.model.api.task.TaskDto;
 import es.sm2baleares.base.model.api.user.UserDto;
-import es.sm2baleares.base.service.exception.NotFoundException;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.HttpStatus;
@@ -60,7 +58,7 @@ public class TaskControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/tasks/"+(Id-1))
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/tasks/id/" + (Id - 1))
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
         String content = mvcResult.getResponse().getContentAsString();
@@ -71,8 +69,8 @@ public class TaskControllerTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(taskDto instanceof  TaskDto);
-        assertTrue(taskDto.getId() == Id-1);
+        assertTrue(taskDto instanceof TaskDto);
+        assertTrue(taskDto.getId() == Id - 1);
 
 
     }
@@ -99,7 +97,7 @@ public class TaskControllerTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(taskDtos instanceof  List);
+        assertTrue(taskDtos instanceof List);
         assertTrue(taskDtos.size() > 0);
 
     }
@@ -117,7 +115,7 @@ public class TaskControllerTest extends IntegrationTest {
 
         TaskDto taskDtoUpdated = new TaskDto();
 
-        taskDtoUpdated.setId(Id-1);
+        taskDtoUpdated.setId(Id - 1);
         taskDtoUpdated.setName("antonio");
         taskDtoUpdated.setActive(false);
 
@@ -135,7 +133,7 @@ public class TaskControllerTest extends IntegrationTest {
         /*-------------------------- Then  --------------------------*/
 
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
-        assertTrue(taskDtoUpdatedReturned instanceof  TaskDto);
+        assertTrue(taskDtoUpdatedReturned instanceof TaskDto);
         assertFalse(taskDto.equals(taskDtoUpdated));
         assertTrue(taskDtoUpdated.equals(taskDtoUpdatedReturned));
 
@@ -152,7 +150,7 @@ public class TaskControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/tasks/"+(Id-1))
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/tasks/id/" + (Id - 1))
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 
@@ -225,23 +223,23 @@ public class TaskControllerTest extends IntegrationTest {
     }
 
 
-    @Test(expected= NestedServletException.class)
+    @Test(expected = NestedServletException.class)
     public void IfTaskDontExistsShouldReturnNotFoundException() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
         /*
-        * Here i'm looking for cause NotFoundException, but that exception cause NestedServletException so i had
-        * to put it
-        * */
+         * Here i'm looking for cause NotFoundException, but that exception cause NestedServletException so i had
+         * to put it
+         * */
 
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcGetRequest = mvc.perform(MockMvcRequestBuilders.get("/api/tasks/"+100)
+        MvcResult mvcGetRequest = mvc.perform(MockMvcRequestBuilders.get("/api/tasks/id/" + 100)
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
-        MvcResult mvcDeleteRequest = mvc.perform(MockMvcRequestBuilders.delete("/api/tasks/"+100)
+        MvcResult mvcDeleteRequest = mvc.perform(MockMvcRequestBuilders.delete("/api/tasks/id/" + 100)
                 .contentType(MediaType.APPLICATION_JSON)).andReturn();
 
 
@@ -251,7 +249,6 @@ public class TaskControllerTest extends IntegrationTest {
         assertEquals(HttpStatus.NOT_FOUND.value(), mvcGetRequest.getResponse().getStatus());
         assertEquals(HttpStatus.NOT_FOUND.value(), mvcDeleteRequest.getResponse().getStatus());
 
-          Assert.fail("Task with id: " + 100l + " don't exists");
 
     }
 
@@ -261,7 +258,7 @@ public class TaskControllerTest extends IntegrationTest {
         TaskDto taskDto = new TaskDto();
 
         taskDto.setId(Id);
-        taskDto.setName("TestName"+ Id);
+        taskDto.setName("TestName" + Id);
         taskDto.setActive(true);
 
         Id++;

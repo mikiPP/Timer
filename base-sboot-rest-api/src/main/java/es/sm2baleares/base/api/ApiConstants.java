@@ -14,7 +14,6 @@ public final class ApiConstants {
     public static final String NOT_FOUND = "Not Found";
     public static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal Server Error";
 
-    public static final String MOCK_RESPONSE_HEADER = "mock-response";
 
     private ApiConstants() {
     }
