@@ -1,6 +1,7 @@
 package es.sm2baleares.base.service.user;
 
 import com.google.common.base.Preconditions;
+import es.sm2baleares.base.model.api.user.AuthUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import es.sm2baleares.base.model.domain.User;
 import es.sm2baleares.base.service.exception.NotFoundException;
@@ -19,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyList;
 
 @Service("UserServiceMock")
@@ -43,7 +45,7 @@ public class UserServiceMock implements UserService {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @PostConstruct
-    public void setUp() {
+    private void setUp() {
 
         users = new ArrayList<>();
         user = new User();
@@ -65,15 +67,9 @@ public class UserServiceMock implements UserService {
     }
 
 
-    @Override
-    public List<UserDto> findAll() {
-        return userConverter.toApiModel(users, UserDto.class);
-    }
+    //CRUD
 
-    @Override
-    public Optional<UserDto> findOne(Long id) {
-        return Optional.of(userConverter.toApiModel(findById(id), UserDto.class));
-    }
+    //Create
 
     @Override
     public UserDto insert(UserDto userDto) {
@@ -88,6 +84,26 @@ public class UserServiceMock implements UserService {
         return userConverter.toApiModel(user, UserDto.class);
     }
 
+    //Read
+
+    @Override
+    public Optional<UserDto> findOne(Long id) {
+        return Optional.of(userConverter.toApiModel(findById(id), UserDto.class));
+    }
+
+    @Override
+    public Optional<UserDto> findOne(String username) {
+        return Optional.of(userConverter.toApiModel(loadByUsername(username), UserDto.class));
+    }
+
+    @Override
+    public List<UserDto> findAll() {
+        return userConverter.toApiModel(users, UserDto.class);
+    }
+
+
+    //Update
+
     @Override
     public UserDto update(UserDto userDto) {
 
@@ -97,14 +113,58 @@ public class UserServiceMock implements UserService {
         user.setPassword(bCryptPasswordEncoder.encode(userDto.getPassword()));
         user.setActive(userDto.getActive());
 
-        users.add((Math.toIntExact(userDto.getId())),user);
+        users.add(user);
 
         return userConverter.toApiModel(user, UserDto.class);
     }
 
     @Override
+    public UserDto update(AuthUserDto authUserDto) {
+
+        User user = userConverter.toDomainModel(findOne(authUserDto.getOldUsername()).get(),User.class);
+        int position = getIndexOf(authUserDto.getOldUsername());
+
+        //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
+
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(),user.getPassword()));
+
+        if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
+
+        if (authUserDto.getNewPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
+        System.out.println(user.getPassword());
+
+        if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
+
+        UserDto userDto = userConverter.toApiModel(user, UserDto.class);
+
+        users.set(position,user);
+
+        return userDto;
+    }
+
+    //Delete
+
+    @Override
     public void delete(Long id) {
         users.remove(findById(id));
+    }
+
+
+    public void deleteUserByUsername(String username,String password) {
+
+        User user = userConverter.toDomainModel(findOne(username).get(),User.class);
+
+        //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
+
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password,user.getPassword()));
+
+        int index = getIndexOf(user.getUsername());
+
+        Preconditions.checkArgument(index != -1);
+
+        users.remove(index);
     }
 
     @Override
@@ -112,8 +172,34 @@ public class UserServiceMock implements UserService {
         users.clear();
     }
 
+    // My methods
+
+    /** @Param String username
+     *  @return Boolean
+     *
+     *
+     *  This method returns true if the user don't exists,if the user exists, will return false
+     *
+     **/
+
+    @Override
+    public boolean usernameIsValid(String username) {
+
+        try {
+
+            return findOne(username) == null;
+
+        } catch (NotFoundException e) {
+            return true;
+        }
+    }
+
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        //Return the user Details just using the username,this method is to make the jwt's token
+
         User user = loadByUsername(username);
 
         if (user != null) {
@@ -125,7 +211,16 @@ public class UserServiceMock implements UserService {
 
     }
 
-    private User findById(Long id) {
+    /** @Param Long id
+     *  @return User
+     *  @throws NotFoundException
+     *
+     *  This method looks for the user with the id by parameter if this user is founded will be the return
+     *  if not will return null and throw NotFoundException
+     **/
+
+
+    private User findById(Long id) throws NotFoundException {
 
         User userToReturn = new User();
 
@@ -138,14 +233,22 @@ public class UserServiceMock implements UserService {
         }
 
         if (userToReturn.getId() == null) {
-             throw new NotFoundException("User with id: " +id + " don't exists");
+            throw new NotFoundException("User with id: " + id + " don't exists");
         }
 
         return userToReturn;
     }
 
 
-    private User loadByUsername(String username) throws UsernameNotFoundException {
+    /** @Param String username
+     *  @return User
+     *  @throws NotFoundException
+     *
+     *  This method looks for the user with the username by parameter if this user is founded will be the return
+     *  if not will return null and throw NotFoundException
+     **/
+
+    private User loadByUsername(String username) throws NotFoundException {
 
         User userToReturn = new User();
 
@@ -158,9 +261,38 @@ public class UserServiceMock implements UserService {
         }
 
         if (userToReturn.getUsername() == null) {
-            throw new NotFoundException("User with id: " + username + " don't exists");
+            throw new NotFoundException("User with username: " + username + " don't exists");
         }
 
         return userToReturn;
     }
+
+    /** @Param String username
+     *  @return int
+     *  @throws NotFoundException
+     *
+     *  This method looks for the user with the username by parameter if this user is founded will return his position
+     *  if not will return -1 and throw NotFoundException
+     **/
+
+
+    private int getIndexOf(String username) throws NotFoundException{
+
+        int index = -1;
+
+        for (User user : users) {
+
+            if (user.getUsername().equals(username)) {
+                index = users.indexOf(user);
+                break;
+            }
+        }
+
+        if (index == -1) {
+            throw new NotFoundException("User with username: " + username + " don't exists");
+        }
+
+        return index;
+    }
+
 }

@@ -1,5 +1,7 @@
 package es.sm2baleares.base.service.user;
 
+import com.google.common.base.Preconditions;
+import es.sm2baleares.base.model.api.user.AuthUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import es.sm2baleares.base.model.domain.User;
 import es.sm2baleares.base.repository.UserRepository;
@@ -13,6 +15,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
@@ -32,17 +35,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserConverter userConverter;
 
+    // CRUD
 
-    @Override
-    public List<UserDto> findAll() {
-
-        return userConverter.toApiModel(userRepository.findAll(), UserDto.class);
-    }
-
-    @Override
-    public Optional<UserDto> findOne(Long id) {
-        return Optional.of(userConverter.toApiModel(userRepository.findById(id).get(), UserDto.class));
-    }
+    //Create
 
     @Override
     public UserDto insert(UserDto userDto) {
@@ -56,19 +51,76 @@ public class UserServiceImpl implements UserService {
         return userConverter.toApiModel(user, UserDto.class);
     }
 
+    // Read
+
+
+    @Override
+    public Optional<UserDto> findOne(Long id) {
+        return Optional.of(userConverter.toApiModel(userRepository.findById(id).get(), UserDto.class));
+    }
+
+    @Override
+    public Optional<UserDto> findOne(String username) {
+
+        try {
+
+            return Optional.of(userConverter.toApiModel(userRepository.findByUsername(username).get(), UserDto.class));
+
+        } catch (NoSuchElementException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public List<UserDto> findAll() {
+
+        return userConverter.toApiModel(userRepository.findAll(), UserDto.class);
+    }
+
+
+    //Update
+
     @Override
     public UserDto update(UserDto userDto) {
 
         User user = userRepository.findById(userDto.getId()).get();
 
-        user.setUsername(userDto.getUsername());
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setActive(userDto.getActive());
+        if (userDto.getUsername() != null) user.setUsername(userDto.getUsername());
+
+        if (userDto.getPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+
+        if (userDto.getActive() != null) user.setActive(userDto.getActive());
 
         userRepository.save(user);
 
         return userConverter.toApiModel(user, UserDto.class);
     }
+
+
+    @Override
+    public UserDto update(AuthUserDto authUserDto) {
+
+        User user = userRepository.findByUsername(authUserDto.getOldUsername()).get();
+
+        //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
+
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(),user.getPassword()));
+
+        if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
+
+        if (authUserDto.getNewPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
+
+        if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
+
+        userRepository.save(user);
+
+        return userConverter.toApiModel(user, UserDto.class);
+
+    }
+
+
+    // Delete
 
     @Override
     public void delete(Long id) {
@@ -80,10 +132,43 @@ public class UserServiceImpl implements UserService {
         userRepository.deleteAll();
     }
 
+
+    @Override
+    public void deleteUserByUsername(String username,String password){
+
+        //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
+
+        User user = userRepository.findByUsername(username).get();
+
+        Preconditions.checkArgument(user != null);
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password,user.getPassword()));
+
+        userRepository.delete(user);
+    }
+
+
+    // My methods
+
+    @Override
+    public boolean usernameIsValid(String username) {
+
+        //Returns true if the user don't exists,if the user exists, will return false
+
+        try {
+
+            return findOne(username).get() == null;
+
+        } catch (NullPointerException e) {
+            return true;
+        }
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        User user = this.userRepository.findByUsername(username);
+        //Return the user Details just using the username,this method is to make the jwt's token
+
+        User user = this.userRepository.findByUsername(username).get();
 
         if (user != null) {
 
@@ -92,4 +177,5 @@ public class UserServiceImpl implements UserService {
 
         throw new UsernameNotFoundException(user.getUsername());
     }
+
 }

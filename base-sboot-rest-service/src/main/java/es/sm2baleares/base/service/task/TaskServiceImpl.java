@@ -24,18 +24,12 @@ public class TaskServiceImpl implements TaskService {
     @Autowired
     private TaskConverter taskConverter;
 
-    @Override
-    public List<TaskDto> findAll() {
 
-        return taskConverter.toApiModel(taskRepository.findAll(), TaskDto.class);
-    }
 
-    @Override
-    public Optional<TaskDto> findOne(Long id) {
+    // CRUD
 
-        return Optional.of(taskConverter.toApiModel(taskRepository.findById(id).get(), TaskDto.class));
 
-    }
+    //Create
 
     @Override
     public TaskDto insert(TaskDto taskDto) {
@@ -49,21 +43,40 @@ public class TaskServiceImpl implements TaskService {
 
     }
 
+    //Read
+
+
+    @Override
+    public Optional<TaskDto> findOne(Long id) {
+
+        return Optional.of(taskConverter.toApiModel(taskRepository.findById(id).get(), TaskDto.class));
+
+    }
+
+    @Override
+    public List<TaskDto> findAll() {
+
+        return taskConverter.toApiModel(taskRepository.findAll(), TaskDto.class);
+
+    }
+
+    //Update
+
     @Override
     public TaskDto update(TaskDto taskDto) {
 
         Task task = taskRepository.findById(taskDto.getId()).get();
 
-        task.setName(taskDto.getName());
-        task.setDescription(taskDto.getDescription());
-        task.setActive(taskDto.getActive());
+        if(!taskDto.getName().isEmpty() && taskDto.getName() != null) task.setName(taskDto.getName());
+        if(!taskDto.getDescription().isEmpty() && taskDto.getDescription() != null) task.setDescription(taskDto.getDescription());
+        if(taskDto.getActive() != null) task.setActive(taskDto.getActive());
 
         taskRepository.save(task);
 
         return taskConverter.toApiModel(task, TaskDto.class);
-
-
     }
+
+    //Delete
 
     @Override
     public void delete(Long id) {

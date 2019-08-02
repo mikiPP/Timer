@@ -1,6 +1,5 @@
 package es.sm2baleares.base.service.task;
 
-import com.google.common.base.Preconditions;
 import es.sm2baleares.base.model.api.task.TaskDto;
 import es.sm2baleares.base.model.domain.Task;
 import es.sm2baleares.base.model.domain.User;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +30,11 @@ public class TaskServiceMock implements TaskService {
 
     public TaskServiceMock(TaskConverter taskConverter) {
         this.taskConverter = taskConverter;
+    }
+
+    @PostConstruct
+    private void setUp() {
+
         tasks = new ArrayList<>();
         Task task = new Task(), task2 = new Task();
         user = new User();
@@ -57,20 +62,14 @@ public class TaskServiceMock implements TaskService {
 
         tasks.add(task);
         tasks.add(task2);
+
     }
 
 
+    // CRUD
 
 
-    @Override
-    public List<TaskDto> findAll() {
-        return taskConverter.toApiModel(tasks, TaskDto.class);
-    }
-
-    @Override
-    public Optional<TaskDto> findOne(Long id) {
-        return Optional.of(taskConverter.toApiModel(findById(id), TaskDto.class));
-    }
+    // Create
 
     @Override
     public TaskDto insert(TaskDto taskDto) {
@@ -81,6 +80,20 @@ public class TaskServiceMock implements TaskService {
 
         return taskConverter.toApiModel(task, TaskDto.class);
     }
+
+    // Read
+
+    @Override
+    public Optional<TaskDto> findOne(Long id) {
+        return Optional.of(taskConverter.toApiModel(findById(id), TaskDto.class));
+    }
+
+    @Override
+    public List<TaskDto> findAll() {
+        return taskConverter.toApiModel(tasks, TaskDto.class);
+    }
+
+    // Update
 
     @Override
     public TaskDto update(TaskDto taskDto) {
@@ -94,6 +107,8 @@ public class TaskServiceMock implements TaskService {
 
         return taskConverter.toApiModel(task, TaskDto.class);
     }
+
+    // Delete
 
     @Override
     public void delete(Long id) {
@@ -109,6 +124,9 @@ public class TaskServiceMock implements TaskService {
     }
 
 
+    //Private Methods
+
+
     private Task findById(Long id) {
 
         Task taskToReturn = new Task();
@@ -121,8 +139,8 @@ public class TaskServiceMock implements TaskService {
             }
         }
 
-        if(taskToReturn.getId() == null){
-            throw new NotFoundException("Task with id: " +id + " don't exists");
+        if (taskToReturn.getId() == null) {
+            throw new NotFoundException("Task with id: " + id + " don't exists");
         }
 
         return taskToReturn;
