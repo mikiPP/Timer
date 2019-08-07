@@ -34,6 +34,8 @@ public class QTask extends EntityPathBase<Task> {
 
     public final StringPath description = createString("description");
 
+    public final NumberPath<Integer> duration = createNumber("duration", Integer.class);
+
     public final DateTimePath<java.time.LocalDateTime> end_time = createDateTime("end_time", java.time.LocalDateTime.class);
 
     //inherited

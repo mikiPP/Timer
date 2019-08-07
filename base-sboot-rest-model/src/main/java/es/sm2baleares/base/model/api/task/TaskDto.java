@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.NotEmpty;
 
@@ -41,6 +40,10 @@ public class TaskDto extends ApiModelItem {
     @ApiModelProperty(example = "2019-07-18T09:55:20", value = "When task ended", position = 50)
     private LocalDateTime end_time;
 
-    @ApiModelProperty(example = "true", value = "User is active", position = 60)
+    @ApiModelProperty(example = "1234", value = "task's duration", position = 60)
+    private Integer duration;
+
+
+    @ApiModelProperty(example = "true", value = "User is active", position = 70)
     private Boolean active;
 }

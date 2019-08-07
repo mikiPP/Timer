@@ -6,6 +6,7 @@ es\sm2baleares\base\model\domain\QTask.class
 es\sm2baleares\base\model\domain\User.class
 es\sm2baleares\base\model\api\user\AuthUserDto.class
 es\sm2baleares\base\model\domain\common\BaseEntity.class
+es\sm2baleares\base\model\api\task\TaskUpdateDto.class
 es\sm2baleares\base\model\domain\common\QBaseEntity.class
 es\sm2baleares\base\model\domain\QUser.class
 es\sm2baleares\base\model\api\task\TaskDto.class

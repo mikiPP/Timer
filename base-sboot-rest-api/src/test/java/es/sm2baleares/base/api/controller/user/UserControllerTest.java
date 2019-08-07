@@ -3,8 +3,6 @@ package es.sm2baleares.base.api.controller.user;
 import es.sm2baleares.base.IntegrationTest;
 import es.sm2baleares.base.model.api.user.AuthUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
-import es.sm2baleares.base.model.domain.User;
-import es.sm2baleares.base.service.exception.NotFoundException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +33,7 @@ public class UserControllerTest extends IntegrationTest {
     }
 
     @Test
-    public void createAnUserShouldReturn() throws Exception {
+    public void createAnUserShouldReturnTheSameUser() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -54,7 +52,7 @@ public class UserControllerTest extends IntegrationTest {
 
 
     @Test
-    public void getAnUserByIdShouldReturnOneUser() throws Exception {
+    public void getAnUserByIdShouldReturnTheUser() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -138,7 +136,7 @@ public class UserControllerTest extends IntegrationTest {
 
         String content = mvcResultNull.getResponse().getContentAsString();
 
-        UserDto  userNotFinded = super.mapFromJson(content, UserDto.class);
+        UserDto userNotFinded = super.mapFromJson(content, UserDto.class);
 
 
         MvcResult mvcResult =
@@ -193,7 +191,6 @@ public class UserControllerTest extends IntegrationTest {
         UserDto userDto = createNewUser();
 
 
-
         mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
                 .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
 
@@ -231,8 +228,6 @@ public class UserControllerTest extends IntegrationTest {
         /*-------------------------- Given  --------------------------*/
 
 
-
-
         mvc.perform(MockMvcRequestBuilders.post("/api/users/add")
                 .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(createNewUser()))).andReturn();
 
@@ -266,8 +261,8 @@ public class UserControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/"+userDto.getUsername()
-        +"/" + userDto.getPassword())
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/" + userDto.getUsername()
+                + "/" + userDto.getPassword())
                 .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
 
 

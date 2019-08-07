@@ -188,7 +188,6 @@ public class UserServiceTest extends IntegrationTest {
         assertTrue(userUpdated instanceof UserDto);
 
 
-
         assertTrue(userDto.getUsername() != userUpdated.getUsername()
                 && userUpdated.getUsername().equals(authUserDtoToUpdate.getNewUsername()));
 
@@ -242,7 +241,7 @@ public class UserServiceTest extends IntegrationTest {
         /*-------------------------- When  --------------------------*/
 
         int usersCount = userService.findAll().size();
-        userService.deleteUserByUsername(userDto.getUsername(),userDto.getPassword());
+        userService.deleteUserByUsername(userDto.getUsername(), userDto.getPassword());
 
         /*-------------------------- Then  --------------------------*/
 

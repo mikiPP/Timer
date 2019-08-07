@@ -2,6 +2,7 @@ package es.sm2baleares.base.api.controller.task;
 
 import es.sm2baleares.base.IntegrationTest;
 import es.sm2baleares.base.model.api.task.TaskDto;
+import es.sm2baleares.base.model.api.task.TaskUpdateDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,6 +13,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.NestedServletException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +32,7 @@ public class TaskControllerTest extends IntegrationTest {
     }
 
     @Test
-    public void createATaskShouldReturn() throws Exception {
+    public void createATaskShouldReturnTheSameTask() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -49,7 +51,7 @@ public class TaskControllerTest extends IntegrationTest {
 
 
     @Test
-    public void getATaskShouldReturnATask() throws Exception {
+    public void findATaskByIdShouldReturnTheTask() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -72,6 +74,63 @@ public class TaskControllerTest extends IntegrationTest {
         assertTrue(taskDto instanceof TaskDto);
         assertTrue(taskDto.getId() == Id - 1);
 
+
+    }
+
+
+    @Test
+    public void findTaskByUserUsernameShouldReturnList() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/tasks/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(createNewTask()))).andReturn();
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get("/api/tasks/all/username")
+                .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        List<TaskDto> taskDtos = super.mapFromJson(content, List.class);
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertTrue(taskDtos instanceof List);
+        assertTrue(taskDtos.size() > 0);
+
+    }
+
+
+    @Test
+    public void findTaskByUsernameAndNameShouldReturnBoolean() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        TaskDto taskDto = createNewTask();
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/tasks/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(taskDto))).andReturn();
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.get(
+                "/api/tasks/name/" + taskDto.getName() + "/user/" + taskDto.getUser().getUsername())
+                .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        Boolean isUsed = super.mapFromJson(content, Boolean.class);
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertTrue(isUsed);
 
     }
 
@@ -103,7 +162,7 @@ public class TaskControllerTest extends IntegrationTest {
     }
 
     @Test
-    public void UpdateATaskShouldReturnTaskUpdated() throws Exception {
+    public void UpdateATaskNameShouldReturnTaskUpdated() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -113,11 +172,11 @@ public class TaskControllerTest extends IntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(taskDto))).andReturn();
 
 
-        TaskDto taskDtoUpdated = new TaskDto();
+        TaskUpdateDto taskDtoUpdated = new TaskUpdateDto();
 
-        taskDtoUpdated.setId(Id - 1);
-        taskDtoUpdated.setName("antonio");
-        taskDtoUpdated.setActive(false);
+        taskDtoUpdated.setOldName(taskDto.getName());
+        taskDtoUpdated.setNewName("antonio");
+        taskDtoUpdated.setNewDescription("description");
 
 
         /*-------------------------- When  --------------------------*/
@@ -135,12 +194,65 @@ public class TaskControllerTest extends IntegrationTest {
         assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
         assertTrue(taskDtoUpdatedReturned instanceof TaskDto);
         assertFalse(taskDto.equals(taskDtoUpdated));
-        assertTrue(taskDtoUpdated.equals(taskDtoUpdatedReturned));
+        assertTrue(taskDtoUpdated.getNewName().equals(taskDtoUpdatedReturned.getName()) &&
+                taskDtoUpdated.getNewDescription().equals(taskDtoUpdatedReturned.getDescription()));
+    }
+
+
+    @Test
+    public void UpdateATaskTimeShouldReturnTaskUpdated() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+        TaskDto taskDto = createNewTask();
+
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/tasks/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(taskDto))).andReturn();
+
+
+        UserDto userDto = new UserDto();
+        userDto.setPassword("password");
+        userDto.setUsername("username");
+        userDto.setId(4l);
+
+
+        TaskDto taskDtoUpdated = new TaskDto();
+        taskDtoUpdated.setId(taskDto.getId());
+        taskDtoUpdated.setName(taskDto.getName());
+        taskDtoUpdated.setUser(userDto);
+        taskDtoUpdated.setStart_time(LocalDateTime.now());
+        taskDtoUpdated.setEnd_time(LocalDateTime.now());
+        taskDtoUpdated.setDescription(taskDto.getDescription());
+        taskDtoUpdated.setDuration(2000);
+        taskDtoUpdated.setActive(true);
+
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/api/tasks/update/time")
+                .contentType(MediaType.APPLICATION_JSON).content("{\"id\":2,\"name\":\"TestName2\"," +
+                        "\"user\":{\"id\":4,\"username\":\"username\",\"password\":\"password\",\"active\":null}," +
+                        "\"description\":\"Description 2\",\"start_time\":\"2019-08-07T10:37:39.262\"," +
+                        "\"end_time\":\"2019-08-07T12:37:39\",\"duration\":2000,\"active\":true}\"")).andReturn();
+
+        String content = mvcResult.getResponse().getContentAsString();
+
+        TaskDto taskDtoUpdatedReturned = super.mapFromJson(content, TaskDto.class);
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+        assertTrue(taskDtoUpdatedReturned instanceof TaskDto);
+        assertTrue(taskDtoUpdatedReturned.getStart_time() != null &&
+                taskDtoUpdatedReturned.getEnd_time() != null);
 
     }
 
+
     @Test
-    public void DeleteATaskShouldReturnOk() throws Exception {
+    public void DeleteATaskByIdShouldReturnOk() throws Exception {
 
         /*-------------------------- Given  --------------------------*/
 
@@ -161,6 +273,31 @@ public class TaskControllerTest extends IntegrationTest {
 
     }
 
+
+    @Test
+    public void DeleteATaskByNameShouldReturnOk() throws Exception {
+
+        /*-------------------------- Given  --------------------------*/
+
+
+        TaskDto taskDto = createNewTask();
+
+        mvc.perform(MockMvcRequestBuilders.post("/api/tasks/add")
+                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(taskDto))).andReturn();
+
+
+        /*-------------------------- When  --------------------------*/
+
+        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/tasks/name/" + taskDto.getName())
+                .contentType(MediaType.APPLICATION_JSON)).andReturn();
+
+
+
+        /*-------------------------- Then  --------------------------*/
+
+        assertEquals(HttpStatus.OK.value(), mvcResult.getResponse().getStatus());
+
+    }
 
     @Test
     public void DeleteAllATaskShouldReturnOk() throws Exception {
@@ -255,10 +392,16 @@ public class TaskControllerTest extends IntegrationTest {
 
     private TaskDto createNewTask() {
 
-        TaskDto taskDto = new TaskDto();
+        UserDto userDto = new UserDto();
+        userDto.setId(2l);
+        userDto.setUsername("username");
+        userDto.setPassword("password");
 
+        TaskDto taskDto = new TaskDto();
         taskDto.setId(Id);
+        taskDto.setUser(userDto);
         taskDto.setName("TestName" + Id);
+        taskDto.setDescription("Description " + Id);
         taskDto.setActive(true);
 
         Id++;

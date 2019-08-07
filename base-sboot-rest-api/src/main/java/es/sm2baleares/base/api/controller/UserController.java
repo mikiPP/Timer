@@ -81,7 +81,6 @@ public class UserController {
     }
 
 
-
     @GetMapping(value = USER_GET_BY_USERNAME_URL)
     @ApiOperation(value = "get an user by username")
     @ApiResponses(value = {
@@ -149,9 +148,9 @@ public class UserController {
             @ApiResponse(code = 404, message = ApiConstants.NOT_FOUND, response = ApiError.class),
             @ApiResponse(code = 400, message = ApiConstants.BAD_REQUEST_MESSAGE, response = ApiError.class),
             @ApiResponse(code = 500, message = ApiConstants.INTERNAL_SERVER_ERROR_MESSAGE, response = ApiError.class)})
-    public void deleteUserByUsername(@ApiParam (value = "User Username") @PathVariable String username,
-                                     @ApiParam (value = "User Password") @PathVariable String password) {
-        userService.deleteUserByUsername(username,password);
+    public void deleteUserByUsername(@ApiParam(value = "User Username") @PathVariable String username,
+                                     @ApiParam(value = "User Password") @PathVariable String password) {
+        userService.deleteUserByUsername(username, password);
     }
 
 
@@ -169,20 +168,20 @@ public class UserController {
     }
 
 
-
     // Our calls
 
-    /** This request get one @param String Username
-     *  and @return Boolean
-     *
-     *  The logic is that check if the users already exists, if the user exists then return false,if not then return
-     *  true
+    /**
+     * This request get one @param String Username
+     * and @return Boolean
+     * <p>
+     * The logic is that check if the users already exists, if the user exists then return false,if not then return
+     * true
      */
 
     @GetMapping(value = USER_USERNAME_URL)
     @ApiOperation(value = "get if user exists by username")
     @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "User returned", response = UserDto.class),
+            @ApiResponse(code = 200, message = "User returned", response = Boolean.class),
             @ApiResponse(code = 400, message = ApiConstants.BAD_REQUEST_MESSAGE, response = ApiConstants.class),
             @ApiResponse(code = 404, message = ApiConstants.NOT_FOUND, response = ApiError.class),
             @ApiResponse(code = 500, message = ApiConstants.INTERNAL_SERVER_ERROR_MESSAGE, response = ApiError.class)})
