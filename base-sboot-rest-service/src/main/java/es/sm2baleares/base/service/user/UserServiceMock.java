@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.emptyEnumeration;
 import static java.util.Collections.emptyList;
 
 @Service("UserServiceMock")
@@ -121,24 +120,25 @@ public class UserServiceMock implements UserService {
     @Override
     public UserDto update(AuthUserDto authUserDto) {
 
-        User user = userConverter.toDomainModel(findOne(authUserDto.getOldUsername()).get(),User.class);
+        User user = userConverter.toDomainModel(findOne(authUserDto.getOldUsername()).get(), User.class);
         int position = getIndexOf(authUserDto.getOldUsername());
 
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(),user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(), user.getPassword()));
 
         if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
 
-        if (authUserDto.getNewPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
+        if (authUserDto.getNewPassword() != null)
+            user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
         System.out.println(user.getPassword());
 
         if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
 
         UserDto userDto = userConverter.toApiModel(user, UserDto.class);
 
-        users.set(position,user);
+        users.set(position, user);
 
         return userDto;
     }
@@ -151,14 +151,14 @@ public class UserServiceMock implements UserService {
     }
 
 
-    public void deleteUserByUsername(String username,String password) {
+    public void deleteUserByUsername(String username, String password) {
 
-        User user = userConverter.toDomainModel(findOne(username).get(),User.class);
+        User user = userConverter.toDomainModel(findOne(username).get(), User.class);
 
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password,user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password, user.getPassword()));
 
         int index = getIndexOf(user.getUsername());
 
@@ -174,12 +174,12 @@ public class UserServiceMock implements UserService {
 
     // My methods
 
-    /** @Param String username
-     *  @return Boolean
-     *
-     *
-     *  This method returns true if the user don't exists,if the user exists, will return false
-     *
+    /**
+     * @return Boolean
+     * <p>
+     * <p>
+     * This method returns true if the user don't exists,if the user exists, will return false
+     * @Param String username
      **/
 
     @Override
@@ -211,12 +211,11 @@ public class UserServiceMock implements UserService {
 
     }
 
-    /** @Param Long id
-     *  @return User
-     *  @throws NotFoundException
-     *
-     *  This method looks for the user with the id by parameter if this user is founded will be the return
-     *  if not will return null and throw NotFoundException
+    /**
+     * @return User
+     * @throws NotFoundException This method looks for the user with the id by parameter if this user is founded will be the return
+     *                           if not will return null and throw NotFoundException
+     * @Param Long id
      **/
 
 
@@ -240,12 +239,11 @@ public class UserServiceMock implements UserService {
     }
 
 
-    /** @Param String username
-     *  @return User
-     *  @throws NotFoundException
-     *
-     *  This method looks for the user with the username by parameter if this user is founded will be the return
-     *  if not will return null and throw NotFoundException
+    /**
+     * @return User
+     * @throws NotFoundException This method looks for the user with the username by parameter if this user is founded will be the return
+     *                           if not will return null and throw NotFoundException
+     * @Param String username
      **/
 
     private User loadByUsername(String username) throws NotFoundException {
@@ -267,16 +265,15 @@ public class UserServiceMock implements UserService {
         return userToReturn;
     }
 
-    /** @Param String username
-     *  @return int
-     *  @throws NotFoundException
-     *
-     *  This method looks for the user with the username by parameter if this user is founded will return his position
-     *  if not will return -1 and throw NotFoundException
+    /**
+     * @return int
+     * @throws NotFoundException This method looks for the user with the username by parameter if this user is founded will return his position
+     *                           if not will return -1 and throw NotFoundException
+     * @Param String username
      **/
 
 
-    private int getIndexOf(String username) throws NotFoundException{
+    private int getIndexOf(String username) throws NotFoundException {
 
         int index = -1;
 

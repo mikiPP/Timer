@@ -1,12 +1,15 @@
 package es.sm2baleares.base.service.task;
 
 import es.sm2baleares.base.model.api.task.TaskDto;
+import es.sm2baleares.base.model.api.task.TaskUpdateDto;
 import es.sm2baleares.base.model.domain.Task;
 import es.sm2baleares.base.model.domain.User;
 import es.sm2baleares.base.service.exception.NotFoundException;
 import es.sm2baleares.base.service.task.Converter.TaskConverter;
+import es.sm2baleares.base.service.user.converter.UserConverter;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +18,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service()
 @ConditionalOnProperty(name = "test.active", havingValue = "true")
@@ -26,11 +30,12 @@ public class TaskServiceMock implements TaskService {
 
     private User user;
 
+    @Autowired
     private TaskConverter taskConverter;
 
-    public TaskServiceMock(TaskConverter taskConverter) {
-        this.taskConverter = taskConverter;
-    }
+    @Autowired
+    private UserConverter userConverter;
+
 
     @PostConstruct
     private void setUp() {
@@ -88,6 +93,10 @@ public class TaskServiceMock implements TaskService {
         return Optional.of(taskConverter.toApiModel(findById(id), TaskDto.class));
     }
 
+    public Optional<TaskDto> findOne(String name) {
+        return Optional.of(taskConverter.toApiModel(findByName(name), TaskDto.class));
+    }
+
     @Override
     public List<TaskDto> findAll() {
         return taskConverter.toApiModel(tasks, TaskDto.class);
@@ -97,15 +106,47 @@ public class TaskServiceMock implements TaskService {
 
     @Override
     public TaskDto update(TaskDto taskDto) {
-        Task task = findById(taskDto.getId());
 
-        task.setName(taskDto.getName());
-        task.setDescription(taskDto.getDescription());
-        task.setActive(taskDto.getActive());
+        Task task = findByName(taskDto.getName());
+        int index = findIndexByName(task.getName());
 
-        tasks.add(task);
+
+        if (taskDto.getActive() != null) task.setActive(taskDto.getActive());
+        if (taskDto.getStart_time() != null) task.setStart_time(taskDto.getStart_time());
+        if (taskDto.getEnd_time() != null) task.setEnd_time(taskDto.getEnd_time());
+        if (taskDto.getDuration() != null) task.setDuration(taskDto.getDuration());
+
+
+        tasks.set(index, task);
 
         return taskConverter.toApiModel(task, TaskDto.class);
+    }
+
+    @Override
+    public TaskDto update(TaskUpdateDto taskUpdateDto) {
+
+        Task task = findByName(taskUpdateDto.getOldName());
+        int index = findIndexByName(taskUpdateDto.getOldName());
+
+        if (!taskUpdateDto.getNewName().isEmpty() && taskUpdateDto.getNewName() != null)
+            task.setName(taskUpdateDto.getNewName());
+        if (taskUpdateDto.getNewDescription() != null) task.setDescription(taskUpdateDto.getNewDescription());
+
+
+        tasks.set(index, task);
+
+        return taskConverter.toApiModel(task, TaskDto.class);
+    }
+
+    @Override
+    public List<TaskDto> findAllByUsername(String username) {
+        List<Task> userTasks = getTasks()
+                .stream()
+                .filter(task -> task.getUser().getUsername().equals(username))
+                .collect(Collectors.toList());
+
+        return taskConverter.toApiModel(userTasks, TaskDto.class);
+
     }
 
     // Delete
@@ -118,11 +159,43 @@ public class TaskServiceMock implements TaskService {
     }
 
     @Override
+    public void deleteByName(String name) {
+        tasks.remove(findIndexByName(name));
+    }
+
+
+    @Override
     public void deleteAll() {
 
         tasks.clear();
     }
 
+
+    // Others methods
+
+    /**
+     * @param name     String
+     * @param username String
+     * @return Boolean
+     * <p>
+     * <p>
+     * This method checks if task exists for this user, if it exists return false because you cannot create another
+     * task.In the other case, if doesn't exist then you can create this task
+     */
+
+
+    @Override
+    public Boolean checkIfTaskNameIsValid(String name, String username) {
+
+        for (Task task : tasks) {
+
+            if (task.getName().equals(name) && task.getUser().getUsername().equals(username)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     //Private Methods
 
@@ -144,5 +217,45 @@ public class TaskServiceMock implements TaskService {
         }
 
         return taskToReturn;
+    }
+
+
+    private Task findByName(String name) {
+
+        Task taskToReturn = new Task();
+
+        for (Task task : tasks) {
+
+            if (task.getName().equals(name)) {
+                taskToReturn = task;
+                break;
+            }
+        }
+
+        if (taskToReturn.getId() == null) {
+            throw new NotFoundException("Task with name: " + name + " don't exists");
+        }
+
+        return taskToReturn;
+    }
+
+
+    private int findIndexByName(String name) {
+
+        int index = -1;
+
+        for (Task task : tasks) {
+
+            if (task.getName().equals(name)) {
+                index = tasks.indexOf(task);
+                break;
+            }
+        }
+
+        if (index == -1) {
+            throw new NotFoundException("Task with name: " + name + " don't exists");
+        }
+
+        return index;
     }
 }

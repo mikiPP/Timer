@@ -44,6 +44,7 @@
         <metrics.spring.version>3.1.3</metrics.spring.version>
         <mock-builder.version>1.0</mock-builder.version>
         <modelmapper.version>0.7.8</modelmapper.version>
+        <redmine-integration.version>4.0.0.preview.1</redmine-integration.version>
         <rest-assured.version>3.0.1</rest-assured.version>
         <sm2-spring-commons.version>1.1-SNAPSHOT</sm2-spring-commons.version>
         <spring-cloud-dependencies.version>Dalston.SR1</spring-cloud-dependencies.version>
@@ -60,6 +61,7 @@
     <modules>
         <module>base-sboot-rest-model</module>
         <module>base-sboot-rest-api</module>
+        <module>base-sboot-rest-integration</module>
         <module>base-sboot-rest-repository</module>
         <module>base-sboot-rest-service</module>
     </modules>
@@ -211,6 +213,9 @@
                 <version>${jBCrypt.version}</version>
             </dependency>
 
+
+            <!--    QueryDsl    -->
+
             <dependency>
                 <groupId>com.querydsl</groupId>
                 <artifactId>querydsl-apt</artifactId>
@@ -223,11 +228,22 @@
                 <version>${querydsl.version}</version>
             </dependency>
 
+            <!--   Commons  -->
+
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
                 <version>${commons-io.version}</version>
             </dependency>
+
+            <!--   Redmine Integration         -->
+
+            <dependency>
+                <groupId>com.taskadapter</groupId>
+                <artifactId>redmine-java-api</artifactId>
+                <version>${redmine-integration.version}</version>
+            </dependency>
+
 
             <!-- Dropwizard Metrics: advanced metrics -->
             <dependency>

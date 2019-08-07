@@ -105,11 +105,12 @@ public class UserServiceImpl implements UserService {
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(),user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(), user.getPassword()));
 
         if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
 
-        if (authUserDto.getNewPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
+        if (authUserDto.getNewPassword() != null)
+            user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
 
         if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
 
@@ -134,14 +135,14 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public void deleteUserByUsername(String username,String password){
+    public void deleteUserByUsername(String username, String password) {
 
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         User user = userRepository.findByUsername(username).get();
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password,user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password, user.getPassword()));
 
         userRepository.delete(user);
     }

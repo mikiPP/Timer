@@ -75,6 +75,7 @@
             </column>
             <column name="START_TIME" type="datetime"/>
             <column name="END_TIME" type="datetime"/>
+            <column name="DURATION" type="Integer(10)"/>
             <column name="ACTIVE" type="tinyint(1)"/>
         </createTable>
     </changeSet>
@@ -104,6 +105,7 @@
             <column name="ACTIVE" type="tinyint(1)"/>
             <column name="START_TIME" type="datetime"/>
             <column name="END_TIME" type="datetime"/>
+            <column name="DURATION" type="Integer(10)"/>
             <column name="CREATED_BY" type="VARCHAR(255)"/>
             <column name="CREATION_DATE" type="datetime(6)"/>
             <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>

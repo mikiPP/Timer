@@ -10,7 +10,7 @@ import java.util.Optional;
 
 public interface UserService extends BaseService<Long, UserDto>, UserDetailsService {
 
-    void deleteUserByUsername(String username,String password);
+    void deleteUserByUsername(String username, String password);
 
     Optional<UserDto> findOne(String username);
 

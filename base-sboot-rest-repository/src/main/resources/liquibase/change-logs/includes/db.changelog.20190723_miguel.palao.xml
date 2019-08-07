@@ -20,6 +20,8 @@
             <column name="LAST_MODIFIED_BY" type="VARCHAR(255)"/>
             <column name="LAST_MODIFICATION_DATE" type="DATETIME(6)"/>
         </addColumn>
+
+        <addUniqueConstraint tableName="TASK" columnNames="NAME,USER" constraintName="UK_NAME_USER"/>
     </changeSet>
 
 
