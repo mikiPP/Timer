@@ -1,17 +1,8 @@
-# Proyecto base Spring-Boot + Angular2
+# Proyecto base Spring-Boot + Jquery + JS
 
 Se ha desarrollado un proyecto base que consta de dos partes, un `back-end` desarrollado con `Spring Boot` (este
-proyecto) y un `front-end` desarrollado con `Angular2` (proyecto `base-sboot-ng2`). La documentación que sigue es
+proyecto) y un `front-end` desarrollado con Jquery y JS (Repositorio `timer-frontend`). La documentación que sigue es
 referente al proyecto de back-end.
-
-Nota: La aplicación angular (`base-sboot-ng2`) todavía no está actualizada para autenticar contra la API (esta app),
-por lo que para lanzar peticiones a endpoints anotados con `@Secured` hay las siguientes alternativas. Se puede utilizar
-cualquiera de ellas:
-
-* Arrancar con el perfil `MOCK-ENDPOINT-SECURITY`
-* Desactivar la seguridad a nivel de property asignando `false` a la propiedad `core.security.enableEndpointSecurity`
-* Hacer un login válido, copiar el token e incluirlo en la cabecera de las peticiones a endpoints protegidos. En la
-carpeta `postman` hay un proyecto `Postman` con peticiones de ejemplo.
 
 ## Estructura
 
@@ -146,17 +137,6 @@ arrancar con el perfil `MOCK-ENDPOINT-SECURITY`.
 ## Configuraciones
 
 En este apartado se indican a grandes rasgos las configuraciones más importantes que se pueden hacer. 
-
-##### Para la generación de menú
-
-* Se debe indicar la opción de menú padre desde la que se debe iniciar la generación recursiva del menú del usuario.
-Para ello se debe dar valor a la propiedad `core.mainMenuOptionId` del `application.properties`.
-
-* En las opciones de menú se puede indicar el orden de cada una para que el menú pueda ser ordenado.
-
-* Se debe indicar el código de empresa a utilizar por defecto. Esto permite que enviar la empresa en el login sea 
-opcional, muy útil para los clientes que sólo usan una empresa. Para ello se debe dar valor a la propiedad 
-`core.defaultCompanyId` del `application.properties`.
 
 #### JWT
 
