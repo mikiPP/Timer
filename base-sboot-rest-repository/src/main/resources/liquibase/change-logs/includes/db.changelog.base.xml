@@ -29,6 +29,10 @@
             <column name="PASSWORD" type="VARCHAR(255)">
                 <constraints nullable="false"/>
             </column>
+            <column name="REDMINE_USER" type="VARCHAR(255)"/>
+            <column name="REDMINE_KEY" type="VARCHAR(255)">
+                <constraints unique="true"/>
+            </column>
             <column name="ACTIVE" type="tinyint(1)"/>
         </createTable>
     </changeSet>
@@ -49,6 +53,8 @@
             <column name="REVTYPE" type="TINYINT(3)"/>
             <column name="USERNAME" type="VARCHAR(255)"/>
             <column name="PASSWORD" type="VARCHAR(255)"/>
+            <column name="REDMINE_USER" type="VARCHAR(255)"/>
+            <column name="REDMINE_KEY" type="VARCHAR(255)"/>
             <column name="ACTIVE" type="tinyint(1)"/>
             <column name="CREATED_BY" type="VARCHAR(255)"/>
             <column name="CREATION_DATE" type="datetime(6)"/>
@@ -76,6 +82,7 @@
             <column name="START_TIME" type="datetime"/>
             <column name="END_TIME" type="datetime"/>
             <column name="DURATION" type="Integer(10)"/>
+            <column name="TIME_IN" type="VARCHAR(255)"/>
             <column name="ACTIVE" type="tinyint(1)"/>
         </createTable>
     </changeSet>
@@ -102,6 +109,7 @@
             <column name="NAME" type="VARCHAR(255)"/>
             <column name="USER" type="bigint(20)"/>
             <column name="DESCRIPTION" type="VARCHAR(255)"/>
+            <column name="TIME_IN" type="VARCHAR(255)"/>
             <column name="ACTIVE" type="tinyint(1)"/>
             <column name="START_TIME" type="datetime"/>
             <column name="END_TIME" type="datetime"/>

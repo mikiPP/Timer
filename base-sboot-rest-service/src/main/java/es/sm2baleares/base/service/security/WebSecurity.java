@@ -1,8 +1,11 @@
 package es.sm2baleares.base.service.security;
 
+import com.auth0.jwt.JWT;
 import es.sm2baleares.base.service.user.UserService;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.encoding.LdapShaPasswordEncoder;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,8 +35,6 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
             "/webjars/**",
             "/api/users/add",
             "/api/users/username/**"
-            //  public endpoints of my API
-            //SIGN_UP_URL
     };
     private UserService userService;
     private BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -61,10 +62,14 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
 
     }
 
+
     @Override
     public void configure(AuthenticationManagerBuilder auth) throws Exception {
         auth.userDetailsService(userService).passwordEncoder(bCryptPasswordEncoder);
+
+
     }
+
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {

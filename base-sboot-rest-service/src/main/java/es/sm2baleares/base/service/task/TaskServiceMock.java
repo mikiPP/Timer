@@ -115,6 +115,7 @@ public class TaskServiceMock implements TaskService {
         if (taskDto.getStart_time() != null) task.setStart_time(taskDto.getStart_time());
         if (taskDto.getEnd_time() != null) task.setEnd_time(taskDto.getEnd_time());
         if (taskDto.getDuration() != null) task.setDuration(taskDto.getDuration());
+        if (taskDto.getTime_in() != null) task.setTime_in(taskDto.getTime_in());
 
 
         tasks.set(index, task);

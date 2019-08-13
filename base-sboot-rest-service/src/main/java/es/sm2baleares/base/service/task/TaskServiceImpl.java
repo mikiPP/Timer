@@ -94,7 +94,6 @@ public class TaskServiceImpl implements TaskService {
         if (taskDto.getEnd_time() != null) task.setEnd_time(taskDto.getEnd_time());
         if (taskDto.getDuration() != null) task.setDuration(taskDto.getDuration());
 
-
         taskRepository.save(task);
 
         return taskConverter.toApiModel(task, TaskDto.class);
@@ -109,7 +108,6 @@ public class TaskServiceImpl implements TaskService {
         if (!taskUpdateDto.getNewName().isEmpty() && taskUpdateDto.getNewName() != null)
             task.setName(taskUpdateDto.getNewName());
         if (taskUpdateDto.getNewDescription() != null) task.setDescription(taskUpdateDto.getNewDescription());
-        //añadir duración
 
         taskRepository.save(task);
 
@@ -143,8 +141,8 @@ public class TaskServiceImpl implements TaskService {
      * @return Boolean
      * <p>
      * <p>
-     *  This method checks if task exists for this user, if it exists return false because you cannot create another
-     *      * task.In the other case, if doesn't exist then you can create this task
+     * This method checks if task exists for this user, if it exists return false because you cannot create another
+     * * task.In the other case, if doesn't exist then you can create this task
      */
 
 
@@ -152,8 +150,7 @@ public class TaskServiceImpl implements TaskService {
     public Boolean checkIfTaskNameIsValid(String name, String username) {
 
 
-        return (taskRepository.finTasksByIdAndName(userRepository.findByUsername(username).get().getId(), name) != null)
-                ? true : false;
+        return taskRepository.finTasksByIdAndName(userRepository.findByUsername(username).get().getId(), name) != null;
     }
 
 }

@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,8 +74,11 @@ public class UserServiceMock implements UserService {
     @Override
     public UserDto insert(UserDto userDto) {
 
-        User user = userConverter.toDomainModel(userDto, User.class);
+        Preconditions.checkArgument(userDto.getRedmineKey() != null);
+        Preconditions.checkArgument(userDto.getRedmineUser() != null);
 
+        User user = userConverter.toDomainModel(userDto, User.class);
+        user.setPassword(new String(Base64.getMimeDecoder().decode(userDto.getPassword())));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setActive(true);
 
@@ -122,17 +126,23 @@ public class UserServiceMock implements UserService {
 
         User user = userConverter.toDomainModel(findOne(authUserDto.getOldUsername()).get(), User.class);
         int position = getIndexOf(authUserDto.getOldUsername());
+        authUserDto.setOldPassword(new String(Base64.getMimeDecoder().decode(authUserDto.getOldPassword().getBytes())));
 
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(), user.getPassword()));
 
-        if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
+        if (authUserDto.getNewUsername() != null && authUserDto.getNewUsername() != "")
+            user.setUsername(authUserDto.getNewUsername());
 
-        if (authUserDto.getNewPassword() != null)
+        if (authUserDto.getNewPassword() != null && authUserDto.getNewPassword() != "") {
+            authUserDto.setNewPassword(new String(Base64.getMimeDecoder().decode(authUserDto.getNewPassword().getBytes())));
             user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
-        System.out.println(user.getPassword());
+        }
+
+        if (authUserDto.getRedmineKey() != null && authUserDto.getRedmineKey() != "")
+            user.setRedmineKey(authUserDto.getRedmineKey());
 
         if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
 
@@ -158,7 +168,8 @@ public class UserServiceMock implements UserService {
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password, user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(new String
+                (Base64.getMimeDecoder().decode(password.getBytes())), user.getPassword()));
 
         int index = getIndexOf(user.getUsername());
 

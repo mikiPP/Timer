@@ -2,6 +2,7 @@ package es.sm2baleares.base.service.user;
 
 import com.google.common.base.Preconditions;
 import es.sm2baleares.base.model.api.user.AuthUserDto;
+import es.sm2baleares.base.model.api.user.CreateUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import es.sm2baleares.base.model.domain.User;
 import es.sm2baleares.base.repository.UserRepository;
@@ -11,9 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -42,14 +45,18 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto insert(UserDto userDto) {
 
-        User user = userConverter.toDomainModel(userDto, User.class);
+        Preconditions.checkArgument(userDto.getRedmineKey() != null);
+        Preconditions.checkArgument(userDto.getRedmineUser() != null);
 
+        User user = userConverter.toDomainModel(userDto, User.class);
+        user.setPassword(new String(Base64.getMimeDecoder().decode(userDto.getPassword())));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setActive(true);
         userRepository.save(user);
 
         return userConverter.toApiModel(user, UserDto.class);
     }
+
 
     // Read
 
@@ -85,12 +92,6 @@ public class UserServiceImpl implements UserService {
 
         User user = userRepository.findById(userDto.getId()).get();
 
-        if (userDto.getUsername() != null) user.setUsername(userDto.getUsername());
-
-        if (userDto.getPassword() != null) user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        if (userDto.getActive() != null) user.setActive(userDto.getActive());
-
         userRepository.save(user);
 
         return userConverter.toApiModel(user, UserDto.class);
@@ -103,14 +104,23 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(authUserDto.getOldUsername()).get();
 
         //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
+        authUserDto.setOldPassword(new String(Base64.getMimeDecoder().decode(authUserDto.getOldPassword().getBytes())));
+
+        //We need to check if the user put the valid credentials,if it is this case we shouldn't change anything
 
         Preconditions.checkArgument(user != null);
         Preconditions.checkArgument(bCryptPasswordEncoder.matches(authUserDto.getOldPassword(), user.getPassword()));
 
-        if (authUserDto.getNewUsername() != null) user.setUsername(authUserDto.getNewUsername());
+        if (authUserDto.getNewUsername() != null && authUserDto.getNewUsername() != "")
+            user.setUsername(authUserDto.getNewUsername());
 
-        if (authUserDto.getNewPassword() != null)
+        if (authUserDto.getNewPassword() != null && authUserDto.getNewPassword() != "") {
+            authUserDto.setNewPassword(new String(Base64.getMimeDecoder().decode(authUserDto.getNewPassword().getBytes())));
             user.setPassword(bCryptPasswordEncoder.encode(authUserDto.getNewPassword()));
+        }
+
+        if (authUserDto.getRedmineKey() != null && authUserDto.getRedmineKey() != "")
+            user.setRedmineKey(authUserDto.getRedmineKey());
 
         if (authUserDto.getActive() != null) user.setActive(authUserDto.getActive());
 
@@ -142,7 +152,8 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findByUsername(username).get();
 
         Preconditions.checkArgument(user != null);
-        Preconditions.checkArgument(bCryptPasswordEncoder.matches(password, user.getPassword()));
+        Preconditions.checkArgument(bCryptPasswordEncoder.matches(new String
+                (Base64.getMimeDecoder().decode(password.getBytes())), user.getPassword()));
 
         userRepository.delete(user);
     }
