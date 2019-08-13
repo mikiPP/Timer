@@ -40,6 +40,11 @@ public class User extends AuditedEntity {
     @Column(name = "ACTIVE", columnDefinition = "boolean default true")
     private boolean active;
 
+    @Column(name = "REDMINE_USER", nullable = false)
+    private String redmineUser;
+
+    @Column(name = "REDMINE_KEY", nullable = false, unique = true)
+    private String redmineKey;
 
     public User(String username, String password) {
         this.password = password;

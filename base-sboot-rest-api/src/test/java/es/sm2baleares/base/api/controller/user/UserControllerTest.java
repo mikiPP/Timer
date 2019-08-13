@@ -9,11 +9,13 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.web.util.NestedServletException;
 
+import java.util.Base64;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -203,7 +205,6 @@ public class UserControllerTest extends IntegrationTest {
         userUpdated.setNewUsername("user updated");
         userUpdated.setActive(false);
 
-
         /*-------------------------- When  --------------------------*/
 
         MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.put("/api/users/update")
@@ -261,9 +262,10 @@ public class UserControllerTest extends IntegrationTest {
 
         /*-------------------------- When  --------------------------*/
 
-        MvcResult mvcResult = mvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/" + userDto.getUsername()
-                + "/" + userDto.getPassword())
-                .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
+        MvcResult mvcResult =
+                mvc.perform(MockMvcRequestBuilders.delete("/api/users/delete/" + userDto.getUsername() + "/" + userDto.getPassword())
+
+                        .contentType(MediaType.APPLICATION_JSON).content(super.mapToJson(userDto))).andReturn();
 
 
 
@@ -386,8 +388,10 @@ public class UserControllerTest extends IntegrationTest {
 
         userDto.setId(Id);
         userDto.setUsername("TestUsername" + Id);
-        userDto.setPassword("12345678");
+        userDto.setPassword(Base64.getMimeEncoder().encodeToString("12345678".getBytes()));
         userDto.setActive(true);
+        userDto.setRedmineUser("TestUser" + Id);
+        userDto.setRedmineKey("asdadadsadadsada");
 
         Id++;
         return userDto;

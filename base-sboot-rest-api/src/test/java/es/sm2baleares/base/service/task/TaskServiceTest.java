@@ -145,7 +145,7 @@ public class TaskServiceTest extends IntegrationTest {
         /*-------------------------- When  --------------------------*/
 
         Boolean isNotValid = taskService.checkIfTaskNameIsValid("find by name and user test", "username");
-        Boolean isValid  = taskService.checkIfTaskNameIsValid("find by name test", "random");
+        Boolean isValid = taskService.checkIfTaskNameIsValid("find by name test", "random");
 
         /*-------------------------- Then  --------------------------*/
 

@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ import static junit.framework.TestCase.assertTrue;
 @RunWith(SpringRunner.class)
 public class UserServiceTest extends IntegrationTest {
 
+    private Long Id = 3l;
 
     @Autowired
     private UserService userService;
@@ -34,10 +36,7 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(4l);
-        userDto.setUsername("username4");
-        userDto.setPassword("password4");
+        UserDto userDto = createUser();
 
 
         /*-------------------------- When  --------------------------*/
@@ -54,7 +53,7 @@ public class UserServiceTest extends IntegrationTest {
 
         assertTrue(userDto.getPassword() != userInserted.getPassword());
 
-        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userInserted.getPassword()));
+        assertTrue(bCryptPasswordEncoder.matches("12345678", userInserted.getPassword()));
 
         assertTrue(users + 1 == userService.findAll().size());
     }
@@ -65,17 +64,14 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(5l);
-        userDto.setUsername("username5");
-        userDto.setPassword("password5");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
+        userDto.setId(20000l);
 
         userService.insert(userDto);
 
         /*-------------------------- When  --------------------------*/
 
-        Optional<UserDto> userFinded = userService.findOne(5l);
+        Optional<UserDto> userFinded = userService.findOne(userDto.getId());
 
         /*-------------------------- Then  --------------------------*/
 
@@ -87,7 +83,7 @@ public class UserServiceTest extends IntegrationTest {
         assertEquals(userDto.getUsername(), userFinded.get().getUsername());
         assertEquals(userDto.getActive(), userFinded.get().getActive());
 
-        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userFinded.get().getPassword()));
+        assertTrue(bCryptPasswordEncoder.matches("12345678", userFinded.get().getPassword()));
 
     }
 
@@ -97,17 +93,13 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(20l);
-        userDto.setUsername("username20");
-        userDto.setPassword("password20");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
         /*-------------------------- When  --------------------------*/
 
-        Optional<UserDto> userFinded = userService.findOne("username20");
+        Optional<UserDto> userFinded = userService.findOne(userDto.getUsername());
 
         /*-------------------------- Then  --------------------------*/
 
@@ -119,7 +111,7 @@ public class UserServiceTest extends IntegrationTest {
         assertEquals(userDto.getUsername(), userFinded.get().getUsername());
         assertEquals(userDto.getActive(), userFinded.get().getActive());
 
-        assertTrue(bCryptPasswordEncoder.matches(userDto.getPassword(), userFinded.get().getPassword()));
+        assertTrue(bCryptPasswordEncoder.matches("12345678", userFinded.get().getPassword()));
 
     }
 
@@ -128,17 +120,11 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(6l);
-        userDto.setUsername("username6");
-        userDto.setPassword("password6");
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(7l);
-        userDto2.setUsername("username7");
-        userDto2.setPassword("password7");
+        UserDto userDto2 = createUser();
 
         userService.insert(userDto2);
 
@@ -160,30 +146,25 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(7l);
-        userDto.setUsername("username7");
-        userDto.setPassword("password7");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
         AuthUserDto authUserDtoToUpdate = new AuthUserDto();
-        authUserDtoToUpdate.setOldUsername("username7");
-        authUserDtoToUpdate.setOldPassword("password7");
+        authUserDtoToUpdate.setOldUsername(userDto.getUsername());
+        authUserDtoToUpdate.setOldPassword(userDto.getPassword());
         authUserDtoToUpdate.setNewUsername("username7 updated");
-        authUserDtoToUpdate.setNewPassword("password7 updated");
+        authUserDtoToUpdate.setNewPassword(Base64.getMimeEncoder().encodeToString("12345678 Update".getBytes()));
         authUserDtoToUpdate.setActive(false);
 
         /*-------------------------- When  --------------------------*/
 
         userService.update(authUserDtoToUpdate);
 
-        UserDto userUpdated = userService.findOne("username7 updated").get();
+        UserDto userUpdated = userService.findOne(authUserDtoToUpdate.getNewUsername()).get();
 
 
         /*-------------------------- Then  --------------------------*/
-        System.out.println(userUpdated.getPassword());
 
         assertTrue(userUpdated instanceof UserDto);
 
@@ -206,18 +187,14 @@ public class UserServiceTest extends IntegrationTest {
     public void DeleteUserByIdShouldReturnVoid() {
 
         /*-------------------------- Given  --------------------------*/
-        UserDto userDto = new UserDto();
-        userDto.setId(8l);
-        userDto.setUsername("username8");
-        userDto.setPassword("password8");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
         /*-------------------------- When  --------------------------*/
 
         int usersCount = userService.findAll().size();
-        userService.delete(8l);
+        userService.delete(userDto.getId());
 
         /*-------------------------- Then  --------------------------*/
 
@@ -230,11 +207,7 @@ public class UserServiceTest extends IntegrationTest {
     public void DeleteUserByUsernameShouldReturnVoid() {
 
         /*-------------------------- Given  --------------------------*/
-        UserDto userDto = new UserDto();
-        userDto.setId(16l);
-        userDto.setUsername("username16");
-        userDto.setPassword("password16");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
@@ -255,23 +228,14 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-
-        userDto.setId(12l);
-        userDto.setUsername("Username12");
-        userDto.setPassword("Password12");
-        userDto.setActive(true);
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
 
-        UserDto userDto2 = new UserDto();
-        userDto2.setId(13l);
-        userDto2.setUsername("Username13");
-        userDto2.setPassword("Password13");
-        userDto2.setActive(false);
+        UserDto userDto2 = createUser();
 
-        userService.insert(userDto);
+        userService.insert(userDto2);
 
         /*-------------------------- When  --------------------------*/
 
@@ -290,10 +254,7 @@ public class UserServiceTest extends IntegrationTest {
 
         /*-------------------------- Given  --------------------------*/
 
-        UserDto userDto = new UserDto();
-        userDto.setId(40l);
-        userDto.setUsername("username40");
-        userDto.setPassword("password40");
+        UserDto userDto = createUser();
 
         userService.insert(userDto);
 
@@ -301,13 +262,31 @@ public class UserServiceTest extends IntegrationTest {
         /*-------------------------- When  --------------------------*/
 
         Boolean userFindedTrue = userService.usernameIsValid("username99");
-        Boolean userFindedFalse = userService.usernameIsValid("username40");
+        Boolean userFindedFalse = userService.usernameIsValid(userDto.getUsername());
 
         /*-------------------------- Then  --------------------------*/
 
         assertTrue(userFindedTrue);
         assertFalse(userFindedFalse);
 
+    }
+
+
+    private UserDto createUser() {
+
+        UserDto userDto = new UserDto();
+
+
+        userDto.setId(Id);
+        userDto.setUsername("TestUsername" + Id);
+        userDto.setPassword(Base64.getMimeEncoder().encodeToString("12345678".getBytes()));
+        userDto.setActive(true);
+        userDto.setRedmineUser("TestUser" + Id);
+        userDto.setRedmineKey("asdadadsadadsada");
+
+        Id++;
+
+        return userDto;
     }
 
     @Override

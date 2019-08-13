@@ -41,9 +41,11 @@ public class Task extends AuditedEntity {
     @Column(name = "END_TIME", nullable = false)
     private LocalDateTime end_time;
 
+    @Column(name = "TIME_IN", nullable = false)
+    private String time_in;
+
     @Column(name = "DURATION", nullable = false) // in miliseconds
     private Integer duration;
-
 
     @Column(name = "ACTIVE", columnDefinition = "boolean default true")
     private boolean active;
@@ -60,7 +62,6 @@ public class Task extends AuditedEntity {
     @Override
     @PreUpdate
     protected void onPreUpdate() {
-
         super.setLastModifiedBy(this.getUser().getUsername());
         super.setLastModificationDate(LocalDateTime.now());
     }

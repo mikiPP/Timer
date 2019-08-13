@@ -33,7 +33,6 @@ public class TaskDto extends ApiModelItem {
     @ApiModelProperty(example = "MyDescription", value = "task's desciption", required = true, position = 30)
     private String description;
 
-
     @ApiModelProperty(example = "2019-07-18T09:55:20", value = "When task started", position = 40)
     private LocalDateTime start_time;
 
@@ -43,7 +42,9 @@ public class TaskDto extends ApiModelItem {
     @ApiModelProperty(example = "1234", value = "task's duration", position = 60)
     private Integer duration;
 
+    @ApiModelProperty(example = "miliseconds", value = "unit of time", required = true, position = 70)
+    private String time_in;
 
-    @ApiModelProperty(example = "true", value = "User is active", position = 70)
+    @ApiModelProperty(example = "true", value = "User is active", position = 80)
     private Boolean active;
 }

@@ -2,6 +2,7 @@ package es.sm2baleares.base.api.controller;
 
 import es.sm2baleares.base.api.ApiConstants;
 import es.sm2baleares.base.model.api.user.AuthUserDto;
+import es.sm2baleares.base.model.api.user.CreateUserDto;
 import es.sm2baleares.base.model.api.user.UserDto;
 import es.sm2baleares.base.service.user.UserService;
 import es.sm2baleares.spring.common.model.api.error.ApiError;
@@ -127,7 +128,7 @@ public class UserController {
     //Delete
 
     @DeleteMapping(value = USER_ID_URL)
-    @ApiOperation(value = "delete an user ")
+    @ApiOperation(value = "delete an user by ID")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User has been deleted"),
             @ApiResponse(code = 400, message = ApiConstants.BAD_REQUEST_MESSAGE, response = ApiError.class),
@@ -140,7 +141,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = USER_DELETE_URL)
-    @ApiOperation(value = "delete an user ")
+    @ApiOperation(value = "delete an user by username")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "User has been deleted"),
             @ApiResponse(code = 401, message = ApiConstants.UNAUTHORIZED, response = ApiConstants.class),

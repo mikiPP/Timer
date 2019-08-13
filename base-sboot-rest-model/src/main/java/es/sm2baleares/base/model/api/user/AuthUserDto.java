@@ -25,14 +25,16 @@ public class AuthUserDto {
     @NotEmpty
     private String oldPassword;
 
-
     @ApiModelProperty(value = "new username", required = true, example = "solid.snake NEW", position = 40)
     private String newUsername;
 
     @ApiModelProperty(value = "new password", required = true, example = "abcdef NEW", position = 50)
     private String newPassword;
 
-    @ApiModelProperty(example = "true", value = "User is active", position = 60)
+    @ApiModelProperty(value = "redmine Key", example = "5226acff2066addc42442bd36c444f246a762c32", position = 60)
+    private String redmineKey;
+
+    @ApiModelProperty(example = "true", value = "User is active", position = 70)
     private Boolean active;
 
 

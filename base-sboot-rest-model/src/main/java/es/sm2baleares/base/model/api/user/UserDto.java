@@ -29,7 +29,13 @@ public class UserDto extends ApiModelItem {
     @NotEmpty
     private String password;
 
-    @ApiModelProperty(example = "true", value = "User is active", position = 40)
+    @ApiModelProperty(value = "redmine User", example = "solid.snake.sm2", position = 40)
+    private String redmineUser;
+
+    @ApiModelProperty(value = "password", example = "5226acff2066addc42442bd36c444f246a762c32", position = 50)
+    private String redmineKey;
+
+    @ApiModelProperty(example = "true", value = "User is active", position = 60)
     private Boolean active;
 
 }
