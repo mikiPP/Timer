@@ -98,7 +98,7 @@ automática gracias a los listeners de JPA `@PrePersist` y `@PreUpdate`.
 generar hashes por ejemplo aquí: `http://bcrypthashgenerator.apphb.com/`
 
 
-##### Swagger
+## Swagger
 
 El proyecto incluye Swagger para la documentación de la API. Se configura en el `application.properties` a través de los
 properties con prefijo `swagger`.
@@ -109,7 +109,7 @@ interesante no tenerlo activado en producción.
 Para ver todos los endpoints y sus ejemplos, los puedes ver,una vez puesto el servidor en marcha en la dirección "http://localhost:8080/swagger-ui.html#/"
 
 
-#### JWT
+## JWT
 
 La api esta securizada en todos los campos con jwt, al hacer loggin a la api, devuelve un token que espira en 6 horas. 
 Los unicos endpoints que son públicos son los de swagger,el de la creación de usuario y finalmente, el endpoint que mira 
