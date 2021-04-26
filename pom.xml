@@ -34,7 +34,7 @@
         <jacoco-maven-plugin.version>0.7.9</jacoco-maven-plugin.version>
 
         <!-- Dependency versions (alphabetically sorted) -->
-        <commons-io.version>2.5</commons-io.version>
+        <commons-io.version>2.7</commons-io.version>
         <commons-lang3.version>3.4</commons-lang3.version>
         <hibernate.version>5.2.1.Final</hibernate.version>
         <jBCrypt.version>0.4.1</jBCrypt.version>
